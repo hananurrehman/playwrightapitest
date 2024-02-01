@@ -21,7 +21,70 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: "html",
+  //reporter: "html",
+  metadata: {
+    env: "Test",
+    type: "API and UI",
+    url: "https://github.com/hananurrehman/playwrightapitest",
+  },
+  reporter: [
+    [
+      "monocart-reporter",
+      {
+        name: "Playwright API test",
+        outputFile: "./test-results/report.html",
+
+        onEnd: async (reportData, { sendEmail, config }) => {
+          const emailOptions = {
+            transport: {
+              service: "Hotmail",
+              auth: {
+                user: process.env.REPORTEMAIL,
+                pass: process.env.REPORTPASSWORD,
+              },
+            },
+            message: {
+              from: "testhanan@outlook.com",
+              to: "hananurrehman@gmail.com",
+              cc: "",
+              bcc: "",
+
+              subject: `${reportData.name} - ${reportData.dateH}`,
+              attachments: [
+                {
+                  path: reportData.htmlPath,
+                },
+              ],
+
+              html: `
+                            <h3>${reportData.name}</h3>
+                            <ul>
+                                <li>Env: ${reportData.metadata.env}</li>
+                    <li>Type: ${reportData.metadata.type}</li>
+                    <li>Url: ${reportData.metadata.url}</li>
+                    <li>Date: ${reportData.dateH}</li>
+                    <li>Duration: ${reportData.durationH}</li>
+                            </ul>
+                            
+                            ${reportData.summaryTable}
+
+                            <p>Please check attachment html for detail.</p>
+
+                            <p>Thanks,</p>
+                        `,
+            },
+          };
+
+          const info = await sendEmail(emailOptions).catch((e) => {
+            console.error(e);
+          });
+          if (info) {
+            console.log(info);
+          }
+        },
+      },
+    ],
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */

@@ -21,7 +21,7 @@ test("Check login unsuccessful", async () => {
   const response = await loginAPI("", "password");
   const responseBody = JSON.parse(await response.text());
   expect(responseBody.status).toBe(401);
-  expect(responseBody.message).toBe("Incorrect email address or password");
+  expect(responseBody.message).toBe("Incorrect email addres or password");
 });
 
 test("Check password length", async () => {
