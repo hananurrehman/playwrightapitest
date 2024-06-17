@@ -1,15 +1,23 @@
 import { test, expect } from "@playwright/test";
-import {
-  addNoteAPI,
-  loginAPI,
-  deleteAllNotesApi,
-} from "../helper-scripts/api-calls";
+import { generateAuthToken } from "../helper-scripts/api-calls";
 
-const email = "hananurrehman@gmail.com";
 const name = "Hanan Test";
+const email = process.env.EMAIL ?? "";
+const password = process.env.PASSWORD ?? "";
+let authToken;
 
-test("Check login successful", async () => {
-  const response = await loginAPI();
+test.beforeAll(async () => {
+  authToken = await generateAuthToken();
+});
+
+test("Check login successful", async ({ request }) => {
+  const response = await request.post("users/login", {
+    data: {
+      email: email,
+      password: password,
+    },
+  });
+
   const responseBody = JSON.parse(await response.text());
   expect(responseBody.status).toBe(200);
   expect(responseBody.data.name).toBe(name);
@@ -17,15 +25,25 @@ test("Check login successful", async () => {
   expect(responseBody.data.token).toBeDefined();
 });
 
-test("Check login unsuccessful", async () => {
-  const response = await loginAPI("", "password");
+test("Check login unsuccessful", async ({ request }) => {
+  const response = await request.post("users/login", {
+    data: {
+      email: email,
+      password: "wrongpassword",
+    },
+  });
   const responseBody = JSON.parse(await response.text());
   expect(responseBody.status).toBe(401);
-  expect(responseBody.message).toBe("Incorrect email addres or password");
+  expect(responseBody.message).toBe("Incorrect email address or password");
 });
 
-test("Check password length", async () => {
-  const response = await loginAPI("", "Lorem ipsum dolor sit amet, con");
+test("Check password length", async ({ request }) => {
+  const response = await request.post("users/login", {
+    data: {
+      email: email,
+      password: "Lorem ipsum dolor sit amet, con",
+    },
+  });
   const responseBody = JSON.parse(await response.text());
   expect(responseBody.status).toBe(400);
   expect(responseBody.message).toBe(
@@ -33,25 +51,32 @@ test("Check password length", async () => {
   );
 });
 
-test("Check email format", async () => {
-  const response = await loginAPI("hanan@test", "");
+test("Check email format", async ({ request }) => {
+  const response = await request.post("users/login", {
+    data: {
+      email: "test@hanan",
+      password: password,
+    },
+  });
   const responseBody = JSON.parse(await response.text());
   expect(responseBody.status).toBe(400);
   expect(responseBody.message).toBe("A valid email address is required");
 });
 
-test("Create note", async () => {
-  const response = await addNoteAPI(
-    "Test note",
-    "Test note from Playwright",
-    "Home"
-  );
+test("Create note", async ({ request }) => {
+  const response = await request.post("notes", {
+    data: {
+      title: "Test note",
+      description: "Test note from Playwright",
+      category: "Home",
+    },
+    headers: {
+      "x-auth-token": authToken,
+    },
+  });
+
   const responseBody = JSON.parse(await response.text());
   expect(responseBody.status).toBe(200);
   expect(responseBody.message).toBe("Note successfully created");
   expect(responseBody.data.title).toBe("Test note");
 });
-
-/* test.only("Delete notes", async () => {
-  await deleteAllNotesApi();
-}); */

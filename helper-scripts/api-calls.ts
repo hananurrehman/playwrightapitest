@@ -19,10 +19,11 @@ export async function loginAPI(email?: string, password?: string) {
   return response;
 }
 
-async function generateAuthToken() {
+export async function generateAuthToken() {
   const response = await loginAPI();
   const responseBody = JSON.parse(await response.text());
   authToken = responseBody.data.token;
+  return authToken;
 }
 
 export async function addNoteAPI(
