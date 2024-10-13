@@ -4,20 +4,19 @@ import { generateAuthToken } from "../helper-scripts/api-calls";
 const name = "Hanan Test";
 const email = process.env.EMAIL ?? "";
 const password = process.env.PASSWORD ?? "";
-let authToken;
+let authToken: string
 
 test.beforeAll(async () => {
   authToken = await generateAuthToken();
 });
 
-test("Check login successful", async ({ request }) => {
+test("Login with correct credentials", async ({ request }) => {
   const response = await request.post("users/login", {
     data: {
       email: email,
       password: password,
     },
   });
-
   const responseBody = JSON.parse(await response.text());
   expect(responseBody.status).toBe(200);
   expect(responseBody.data.name).toBe(name);
@@ -25,7 +24,7 @@ test("Check login successful", async ({ request }) => {
   expect(responseBody.data.token).toBeDefined();
 });
 
-test("Check login unsuccessful", async ({ request }) => {
+test("Login with incorrect credentials", async ({ request }) => {
   const response = await request.post("users/login", {
     data: {
       email: email,
@@ -37,7 +36,7 @@ test("Check login unsuccessful", async ({ request }) => {
   expect(responseBody.message).toBe("Incorrect email address or password");
 });
 
-test("Check password length", async ({ request }) => {
+test("Login with password that is too long", async ({ request }) => {
   const response = await request.post("users/login", {
     data: {
       email: email,
@@ -51,7 +50,7 @@ test("Check password length", async ({ request }) => {
   );
 });
 
-test("Check email format", async ({ request }) => {
+test("Login with invalid email", async ({ request }) => {
   const response = await request.post("users/login", {
     data: {
       email: "test@hanan",
@@ -63,7 +62,7 @@ test("Check email format", async ({ request }) => {
   expect(responseBody.message).toBe("A valid email address is required");
 });
 
-test("Create note", async ({ request }) => {
+test("Create a note", async ({ request }) => {
   const response = await request.post("notes", {
     data: {
       title: "Test note",

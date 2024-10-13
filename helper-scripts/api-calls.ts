@@ -66,13 +66,11 @@ export async function deleteAllNotesApi() {
   const allNoteIDs = allNotesApiResponseBody.data.map((note) => note.id);
 
   for (const id of allNoteIDs) {
-    const response = await context.delete(apiURL + `/notes/${id}`, {
+    await context.delete(apiURL + `/notes/${id}`, {
       headers: {
         "x-auth-token": authToken,
       },
     });
     console.log("Deleted note with ID: " + id);
-    const responseBody = JSON.parse(await response.text());
-    console.log("Here is the response: " + responseBody);
-  }
-}
+
+}}
