@@ -46,6 +46,57 @@ export async function addNoteAPI(
   return response;
 }
 
+export async function createNotesApi(title?: string, description?: string, category?: string, providedAuthToken?: string) {
+  const context = await request.newContext();
+  if (providedAuthToken === undefined && !authToken) {
+    await generateAuthToken();
+  }
+  const authTokenToUse = providedAuthToken ?? authToken;
+  const response = await context.post(apiURL + `/notes`,{
+    data: {
+      title: title,
+      description: description,
+      category: category
+    },
+    headers: {
+      "x-auth-token": authTokenToUse,
+    },
+  })
+  return response;
+}
+
+export async function updateNoteApi(id: string, title: string, description: string, category: string, completed: boolean) {
+  const context = await request.newContext()
+  await generateAuthToken()
+  const response = await context.put(apiURL + `/notes/` + id, {
+    data: {
+      title: title,
+      description: description,
+      category: category,
+      completed: completed
+    },
+    headers: {
+      "x-auth-token": authToken,
+    },
+  })
+  return response
+}
+
+export async function updateNoteStatus(id: string, completed:boolean) {
+  const context = await request.newContext()
+  await generateAuthToken()
+  const response = await context.patch(apiURL + `/notes/`+ id, {
+    data:
+    {
+      completed: completed
+    },
+    headers: {
+      "x-auth-token": authToken,
+    },
+  })
+  return response
+}
+
 export async function fetchAllNotesApi() {
   const context = await request.newContext();
   await generateAuthToken();
@@ -56,6 +107,17 @@ export async function fetchAllNotesApi() {
   });
 
   return response;
+}
+
+export async function deleteNoteApi(id: string) {
+  const context = await request.newContext();
+  await generateAuthToken();
+   const response =  await context.delete(apiURL + `/notes/${id}`, {
+      headers: {
+        "x-auth-token": authToken,
+      },
+    });
+    return response
 }
 
 export async function deleteAllNotesApi() {
