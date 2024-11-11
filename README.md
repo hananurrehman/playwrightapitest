@@ -1,6 +1,6 @@
 # Playwright API testing Practice Project
 
-This project demonstrates my learning of API testing with Playwright:
+I created this porject for some PoC and R&D into API testing with Playwright:
 
 ## Practice Notes App by Expand Testing
 
