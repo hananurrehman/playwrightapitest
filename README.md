@@ -9,8 +9,6 @@ The test web app I selected is
 
 - https://practice.expandtesting.com/notes/app/
 
-This project contains UI and API tests. The goal is to have UI tests that use API calls as well as having separate API tests.
-
 After forking, execute the following command:
 
 ```bash
